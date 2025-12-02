@@ -32,12 +32,12 @@ public class WikiPageCollectorService {
         try {
             Document doc = Jsoup.connect(url).ignoreContentType(true).get();
             for (Element item : doc.select("a.wikilink1")) {
-                String href = item.attr("href");
+                String href = item.attr("abs:href");
                 pageSet.add(href);
                 log.debug("Collected page: {}", href);
             }
             for (Element ns : doc.select("a.idx_dir")) {
-                String href = ns.attr("href");
+                String href = ns.attr("abs:href");
                 if (href.startsWith(url) && !href.equals(url)) {
                     pageSet.addAll(collectPagesForUrl(href));
                 }

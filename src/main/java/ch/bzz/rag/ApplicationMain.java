@@ -2,29 +2,35 @@ package ch.bzz.rag;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringApplication;
 import java.net.MalformedURLException;
+import ch.bzz.rag.service.StoreService;
+import org.springframework.ai.document.Document;
 import ch.bzz.rag.service.WikiPageDownloaderService;
 import ch.bzz.rag.service.WikiPageCollectorService;
+import ch.bzz.rag.service.WikiCrawlerPipelineService;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.Set;
+import java.util.List;
 
 @Slf4j
 @SpringBootApplication
 public class ApplicationMain {
     public static void main(String[] args) {
-        log.info("Application has been started");
-        WikiPageDownloaderService downloader = new WikiPageDownloaderService();
-        try {
-            downloader.init("https://wiki.bzz.ch");
-            String content = downloader.downloadPage("de:modul:ffit:3-jahr:java:learningunits:lu01:aufgaben:branching");
-            log.info("content: '{}'", content);
-        } catch (MalformedURLException e) {
-            log.error("Error using url {}", e.getMessage(), e);
+        ConfigurableApplicationContext ctx = SpringApplication.run(ApplicationMain.class, args);
+
+        StoreService storeService = ctx.getBean(StoreService.class);
+        storeService.updateIndex();
+        int numberOfResults = 5;
+        String query = "Was ist Lombok?";
+        List<Document> docs = storeService.search(query, numberOfResults);
+        for(Document doc : docs){
+            log.info("Doc with id '{}' and metadata '{}'", doc.getId() , doc.getMetadata());
         }
 
-        WikiPageCollectorService collector = new WikiPageCollectorService();
-        String namespace = "de:modul:ffit:3-jahr:java:learningunits:lu11:";
-        Set<String> pages = collector.collectPagesForNamespace("https://wiki.bzz.ch", namespace);
-        log.info(pages.toString());
+        
+        ctx.close();
     }
 }
+

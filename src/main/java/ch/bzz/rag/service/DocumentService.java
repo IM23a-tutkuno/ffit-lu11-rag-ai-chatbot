@@ -20,9 +20,11 @@ public class DocumentService {
     public static final int DEFAULT_CHUNK_OVERLAP = 80;
 
     public Document createDocument(String content, String source) {
-        String id = UUID.nameUUIDFromBytes(content.getBytes(StandardCharsets.UTF_8)).toString();
-        return new Document(id, content, Map.of("source", source));
+       String id = UUID.nameUUIDFromBytes(content.getBytes(StandardCharsets.UTF_8)).toString();
+       return new Document(id, content, Map.of("source", source));
     }
+
+
 
     public List<Document> createDocuments(String content, String source) {
         List<String> chunks = splitToChunks(content, DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP);
@@ -34,15 +36,17 @@ public class DocumentService {
         return docs;
     }
 
-    public List<String> splitToChunks(String text, int chunkSize, int overlap) {
-        if (text == null || overlap < 0 || chunkSize <= overlap) {
-            throw new IllegalArgumentException("Invalid text, chunkSize or overlap value.");
-        }
+    public List<String> splitToChunks(String text, int chunkSize, int overlap) { 
+        if (text == null || overlap < 0 || chunkSize <= overlap) { 
+            throw new IllegalArgumentException("Invalid text, chunkSize or overlap value."); 
+        } 
         List<String> result = new ArrayList<>();
-
-        // TODO: implement logic
-
-        log.debug("Created {} chunks with chunkSize {} and overlap {}", result.size(), chunkSize, overlap);
-        return result;
-    }
+        int start = 0; 
+        while (start < text.length()) { 
+            int end = Math.min(start + chunkSize, text.length()); 
+            result.add(text.substring(start, end)); 
+            start += (chunkSize - overlap); } 
+            log.debug("Created {} chunks with chunkSize {} and overlap {}", result.size(), chunkSize, overlap); 
+            return result; 
+        }
 }
